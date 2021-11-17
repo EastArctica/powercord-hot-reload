@@ -48,7 +48,9 @@ module.exports = class HotReload extends Plugin {
 			powercord.pluginManager.remount(id);
 		}
 
-		const pluginText = pluginNames.length ? pluginNames.join(", ") : "None";
+		if (!pluginNames.length) return;
+
+		const pluginText = pluginNames.join(", ");
 
 		powercord.api.notices.sendToast("hot-reload-success", {
 			header: "Hot Reload",
