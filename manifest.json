@@ -1,0 +1,9 @@
+{
+  "name": "Hot Reload",
+  "version": "1.0.0",
+  "description": "Hot reload powercord plugins.",
+  "author": "East_Arctica#7667, Hexiro#8250",
+  "license": "Apache-2.0",
+  "repo": "https://github.com/EastArctica/hot-reload",
+  "dependencies": []
+}
