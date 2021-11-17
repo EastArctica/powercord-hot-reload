@@ -18,23 +18,29 @@ module.exports = class HotReload extends Plugin {
 	}
 
 	listener(e) {
-		console.log("F5");
 		if (e.key !== "F5") return;
 		if (e.ctrlKey || e.altKey || e.shiftKey || e.metaKey) return;
 		e.preventDefault();
 
-		console.log("preventing default...");
-
 		const settings = powercord.pluginManager.get("hot-reload").settings;
 
+		let pluginText = "";
 		for (const plugin of powercord.pluginManager.plugins.values()) {
 			const whitelisted = settings.get(plugin.entityID, false);
 			if (!whitelisted) continue;
 
 			const name = plugin.manifest.name;
 			const id = plugin.entityID;
-			console.log(`remounting ${name}`);
+			pluginText += `${name}, `;
 			powercord.pluginManager.remount(id);
 		}
+		pluginText = pluginText.slice(0, -2); // remove last comma
+
+		powercord.api.notices.sendToast("hot-reload-success", {
+			header: "Hot Reload",
+			content: `Reloaded plugins: ${pluginText}.`,
+			type: "success",
+			timeout: 5000
+		});
 	}
 };
