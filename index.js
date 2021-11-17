@@ -26,7 +26,7 @@ module.exports = class HotReload extends Plugin {
 		const pluginNames = [];
 
 		for (const plugin of powercord.pluginManager.plugins.values()) {
-			const whitelisted = settings.get(plugin.entityID, false);
+			const whitelisted = settings.get(plugin.updateIdentifier, false);
 			if (!whitelisted) continue;
 
 			const name = plugin.manifest.name;

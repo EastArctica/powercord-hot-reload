@@ -11,19 +11,22 @@ module.exports = class Settings extends React.Component {
 				<Category
 					name="Whitelist"
 					description="Choose which plugins you want to hot reload."
-					// could potentially cause issue if plugin was named 'whitelist'
 					opened={getSetting("whitelist", false)}
 					onChange={() => toggleSetting("whitelist")}
 				>
-					{plugins.map((plugin) => (
-						<SwitchItem
-							note={`${plugin.manifest.description} (${plugin.entityID})`}
-							value={getSetting(plugin.entityID, false)}
-							onChange={() => toggleSetting(plugin.entityID)}
-						>
-							{plugin.manifest.name}
-						</SwitchItem>
-					))}
+					{plugins.map((plugin) => {
+						if (plugin.isInternal) return null;
+						if (plugin.updateIdentifier === "plugins_hot-reload") return null;
+						return (
+							<SwitchItem
+								note={`${plugin.manifest.description} (${plugin.entityID})`}
+								value={getSetting(plugin.updateIdentifier, false)}
+								onChange={() => toggleSetting(plugin.updateIdentifier)}
+							>
+								{plugin.manifest.name}
+							</SwitchItem>
+						);
+					})}
 				</Category>
 			</div>
 		);
