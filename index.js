@@ -1,7 +1,13 @@
 const { Plugin } = require("powercord/entities");
-const Settings = require("./Settings");
+const Settings = require("./components/Settings");
 
 module.exports = class HotReload extends Plugin {
+	constructor() {
+		super();
+		this.boundListener = this.listener.bind(this);
+		this.keybind = "F5";
+	}
+
 	async startPlugin() {
 		powercord.api.settings.registerSettings("hot-reload", {
 			category: "hot-reload",
@@ -9,38 +15,48 @@ module.exports = class HotReload extends Plugin {
 			render: Settings,
 		});
 
-		document.body.addEventListener("keyup", this.listener);
+		document.body.addEventListener("keyup", this.boundListener);
 	}
 
 	async pluginWillUnload() {
 		powercord.api.settings.unregisterSettings("hot-reload");
-		document.body.removeEventListener("keyup", this.listener);
+		document.body.removeEventListener("keyup", this.boundListener);
 	}
 
 	listener(e) {
-		if (e.key !== "F5") return;
+		const keybind = this.settings.get("keybind", "F5");
+
+		// don't reload when changing keybind
+		if (this.keybind !== keybind) {
+			this.keybind = keybind;
+			return;
+		}
+
+		if (e.key !== keybind) return;
 		if (e.ctrlKey || e.altKey || e.shiftKey || e.metaKey) return;
 		e.preventDefault();
 
-		const settings = powercord.pluginManager.get("hot-reload").settings;
+		const pluginNames = [];
 
-		let pluginText = "";
 		for (const plugin of powercord.pluginManager.plugins.values()) {
-			const whitelisted = settings.get(plugin.entityID, false);
+			const whitelisted = this.settings.get(plugin.updateIdentifier, false);
 			if (!whitelisted) continue;
 
 			const name = plugin.manifest.name;
 			const id = plugin.entityID;
-			pluginText += `${name}, `;
+			pluginNames.push(name);
 			powercord.pluginManager.remount(id);
 		}
-		pluginText = pluginText.slice(0, -2); // remove last comma
+
+		if (!pluginNames.length) return;
+
+		const pluginText = pluginNames.join(", ");
 
 		powercord.api.notices.sendToast("hot-reload-success", {
 			header: "Hot Reload",
 			content: `Reloaded plugins: ${pluginText}.`,
 			type: "success",
-			timeout: 5000
+			timeout: 5000,
 		});
 	}
 };
