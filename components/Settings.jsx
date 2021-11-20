@@ -22,6 +22,7 @@ module.exports = class Settings extends React.Component {
 				>
 					Toggle Keybind
 				</KeybindRecorder>
+				<br />
 				<Category
 					name="Whitelist"
 					description="Choose which plugins you want to hot reload."
